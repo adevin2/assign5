@@ -5,6 +5,79 @@
     </HEAD>
     <BODY>
         <H1>Sankey Plot</H1>
-        <CODE> CODE </CODE>
+        <CODE> import pandas as pd
+            import plotly.graph_objects as go
+            
+            # Subject Data
+            data = {
+                'roi': ['SFG_L', 'SFG_R', 'SFG_PFC_L', 'SFG_PFC_R', 'SFG_pole_L'],
+                'volume': [12926, 10050, 12783, 11507, 3078],
+                'level4': ['SFG_L', 'SFG_R', 'SFG_L', 'SFG_R', 'SFG_L'],
+                'level3': ['Frontal_L', 'Frontal_R', 'Frontal_L', 'Frontal_R', 'Frontal_L'],
+                'level2': ['CerebralCortex_L', 'CerebralCortex_R', 'CerebralCortex_L', 'CerebralCortex_R', 'CerebralCortex_L'],
+                'level1': ['Telencephalon_L', 'Telencephalon_R', 'Telencephalon_L', 'Telencephalon_R', 'Telencephalon_L'],
+                'icv': ['ICV', 'ICV', 'ICV', 'ICV', 'ICV'],
+                'comp': [0.009350, 0.007270, 0.009247, 0.008324, 0.002227]
+            }
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(data)
+            
+            # Step 1: Define Nodes and Links
+            nodes = ['ICV'] + df['level1'].unique().tolist() + df['level2'].unique().tolist() + df['level3'].unique().tolist() + df['level4'].unique().tolist()
+            
+            # Create source and target lists
+            sources = []
+            targets = []
+            values = []
+            
+            # ICV to Level 1
+            for index, row in df.iterrows():
+                sources.append(0)  # ICV index
+                targets.append(nodes.index(row['level1']))  # Level 1 index
+                values.append(row['volume'])
+            
+            # Level 1 to Level 2
+            for index, row in df.iterrows():
+                sources.append(nodes.index(row['level1']))
+                targets.append(nodes.index(row['level2']))
+                values.append(row['volume'])
+            
+            # Level 2 to Level 3
+            for index, row in df.iterrows():
+                sources.append(nodes.index(row['level2']))
+                targets.append(nodes.index(row['level3']))
+                values.append(row['volume'])
+            
+            # Level 3 to Level 4
+            for index, row in df.iterrows():
+                sources.append(nodes.index(row['level3']))
+                targets.append(nodes.index(row['level4']))
+                values.append(row['volume'])
+            
+            # Sankey Diagram
+            fig = go.Figure(data=[go.Sankey(
+                node=dict(
+                    pad=15,
+                    thickness=20,
+                    line=dict(color="black", width=0.5),
+                    label=nodes,
+                    color="blue"
+                ),
+                link=dict(
+                    source=sources,
+                    target=targets,
+                    value=values
+                )
+            )])
+            
+            # Format
+            fig.update_layout(title_text="MRICloud Data Sankey Diagram", font_size=10)
+            
+            # Write to HTML
+            fig.write_html('sankey.html')
+            
+            fig.show()
+             </CODE>
     </BODY>
 </HTML>
